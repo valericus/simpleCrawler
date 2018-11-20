@@ -5,7 +5,6 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
 import akka.util.Timeout
-import spray.json._
 import su.creator.simpleCrawler.json.CrawlerJsonProtocol
 import su.creator.simpleCrawler.model.{Request, Response}
 
