@@ -51,3 +51,10 @@ Server: akka-http/10.1.5
     ]
 }
 ```
+
+## TODO
+
+[ ] move hardcoded parameters to config
+[ ] add non-naive crawler that can handle task queue to support huge
+    requests (hundreds of URIs) and too slow sites
+[ ] improve build to provide ready to use docker image or/and jar file
