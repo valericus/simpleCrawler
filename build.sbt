@@ -1,5 +1,6 @@
 val akkaVersion = "2.6.0"
 val akkaHttpVersion = "10.1.11"
+val circeVersion = "0.12.1"
 
 name := "simpleCrawler"
 
@@ -17,6 +18,12 @@ libraryDependencies ++= Seq(
   "org.jsoup" % "jsoup" % "1.12.1",
 
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
+
+  "de.heikoseeberger" %% "akka-http-circe" % "1.29.1",
+
+  "io.circe" %% "circe-core" % circeVersion,
+  "io.circe" %% "circe-generic" % circeVersion,
+  "io.circe" %% "circe-parser" % circeVersion,
 
   "org.scalatest" %% "scalatest" % "3.1.0" % Test,
   "org.scalamock" %% "scalamock" % "4.4.0" % Test
