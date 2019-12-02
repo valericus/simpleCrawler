@@ -1,31 +1,31 @@
 package su.creator.simpleCrawler.crawler
 
-import akka.actor.{Actor, ActorLogging}
+import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.StatusCodes.Redirection
 import akka.http.scaladsl.model.headers.Location
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}
 import akka.http.scaladsl.unmarshalling.FromResponseUnmarshaller
-import akka.stream.{ActorMaterializer, Materializer}
+import com.typesafe.scalalogging.Logger
 import org.jsoup.nodes.Document
 import su.creator.simpleCrawler.html.HtmlHelpers
 import su.creator.simpleCrawler.json.JsoupUnmarshaller
-import su.creator.simpleCrawler.model.{FailedItem, ResponseItem, SuccessfulItem}
+import su.creator.simpleCrawler.model._
 
 import scala.concurrent.Future
-import scala.language.{implicitConversions, postfixOps}
+import scala.util.control.NonFatal
 
-abstract class Crawler extends Actor with ActorLogging with HtmlHelpers {
+abstract class Crawler(implicit as: ActorSystem) extends HtmlHelpers {
 
-  implicit def uriToRequest(uri: Uri): HttpRequest = HttpRequest(uri = uri)
+  def doJob(request: Request): Future[Response]
 
-  import context.{dispatcher, system}
+  import as.dispatcher
 
-  val http = Http()
+  private val log: Logger = Logger(getClass)
 
-  implicit val ma: Materializer = ActorMaterializer()(context)
+  private val http = Http()
 
-  val unmarshall: FromResponseUnmarshaller[Document] = new JsoupUnmarshaller()
+  private val unmarshall: FromResponseUnmarshaller[Document] = new JsoupUnmarshaller()
 
   /**
     * Proceed HttpRequest and follow redirects up to `maxRedirects` times.
@@ -35,7 +35,7 @@ abstract class Crawler extends Actor with ActorLogging with HtmlHelpers {
     * @param maxRedirects maximal number of retries
     * @return final response or exception in case of infinite redirection loop
     */
-  def requestWithRedirections(request: HttpRequest, count: Int = 0, maxRedirects: Int = 30): Future[HttpResponse] = {
+  private def requestWithRedirections(request: HttpRequest, count: Int = 0, maxRedirects: Int = 30): Future[HttpResponse] = {
     http.singleRequest(request) flatMap {
       case response@HttpResponse(redirection: Redirection, _, _, _) ⇒
         response.discardEntityBytes().future.flatMap { _ ⇒
@@ -53,8 +53,8 @@ abstract class Crawler extends Actor with ActorLogging with HtmlHelpers {
     }
   }
 
-  def dealWithUri(uri: Uri): Future[ResponseItem] = {
-    requestWithRedirections(uri) flatMap { response ⇒
+  protected def dealWithUri(uri: Uri): Future[ResponseItem] = {
+    requestWithRedirections(HttpRequest(uri = uri)) flatMap { response ⇒
       if (response.status.isSuccess)
         unmarshall(response) flatMap { document ⇒
           Future(document / "head" / "title" text) map { title ⇒
@@ -69,9 +69,9 @@ abstract class Crawler extends Actor with ActorLogging with HtmlHelpers {
       }
     }
   } recover {
-    case exception: Exception ⇒
-      log.error(exception, "Can't handle URI {}", uri)
-      FailedItem(uri, exception.toString)
+    case NonFatal(throwable) ⇒
+      log.error(s"Can't handle URI $uri", throwable)
+      FailedItem(uri, throwable.toString)
   }
 
 }

@@ -16,6 +16,8 @@ libraryDependencies ++= Seq(
 
   "org.jsoup" % "jsoup" % "1.12.1",
 
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
+
   "org.scalatest" %% "scalatest" % "3.1.0" % Test,
   "org.scalamock" %% "scalamock" % "4.4.0" % Test
 )

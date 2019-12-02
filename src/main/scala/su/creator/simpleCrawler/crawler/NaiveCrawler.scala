@@ -1,26 +1,16 @@
 package su.creator.simpleCrawler.crawler
 
-import akka.actor.Props
-import akka.pattern.pipe
+import akka.actor.ActorSystem
 import su.creator.simpleCrawler.model.{Request, Response}
 
 import scala.concurrent.Future
 import scala.language.{implicitConversions, postfixOps}
 
-class NaiveCrawler extends Crawler {
+class NaiveCrawler(implicit as: ActorSystem) extends Crawler {
 
-  import context.dispatcher
+  import as.dispatcher
 
-  override def receive: Receive = {
-    case Request(uris) ⇒
-      Future.sequence(uris.map(dealWithUri)) map Response pipeTo sender
-    case message ⇒
-      log.error(s"Received unexpected message $message")
+  def doJob(request: Request): Future[Response] = {
+    Future.traverse(request.uris)(dealWithUri).map(Response)
   }
-}
-
-object NaiveCrawler {
-
-  def props: Props = Props(new NaiveCrawler)
-
 }

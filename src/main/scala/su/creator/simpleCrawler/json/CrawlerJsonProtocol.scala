@@ -27,7 +27,7 @@ trait CrawlerJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
       case failedItem: FailedItem ⇒ failedItem.toJson
     }
 
-    // actually we need no reader but full format is required by by marshaller
+    // actually we need no reader but full format is required by marshaller
     override def read(json: JsValue): ResponseItem =
       if (json.asJsObject.fields contains "title")
         json.convertTo[SuccessfulItem]
@@ -37,5 +37,4 @@ trait CrawlerJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
   }
 
   implicit val responseFormat: RootJsonFormat[Response] = jsonFormat1(Response)
-
 }
