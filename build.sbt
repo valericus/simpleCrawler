@@ -1,11 +1,11 @@
-val akkaVersion = "2.5.18"
-val akkaHttpVersion = "10.1.5"
+val akkaVersion = "2.6.0"
+val akkaHttpVersion = "10.1.11"
 
 name := "simpleCrawler"
 
-version := "0.1"
+version := "0.2"
 
-scalaVersion := "2.12.7"
+scalaVersion := "2.12.10"
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
@@ -14,8 +14,8 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http-xml" % akkaHttpVersion,
   "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
 
-  "org.jsoup" % "jsoup" % "1.11.3",
+  "org.jsoup" % "jsoup" % "1.12.1",
 
-  "org.scalatest" %% "scalatest" % "3.0.5" % Test,
-  "org.scalamock" %% "scalamock" % "4.1.0" % Test
+  "org.scalatest" %% "scalatest" % "3.1.0" % Test,
+  "org.scalamock" %% "scalamock" % "4.4.0" % Test
 )
